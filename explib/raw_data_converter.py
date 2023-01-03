@@ -1,63 +1,51 @@
+import csv
 import numpy as np
 import pandas as pd
 import pickle as pkl
 
 
-# preprocess for SWaT. SWaT.A2_Dec2015, version 0
-df = pd.read_csv('SWaT_Dataset_Attack_v0.csv')
-y = df['Normal/Attack'].to_numpy()
-labels = []
-for i in y:
-    if i == 'Attack':
-        labels.append(1)
-    else:
-        labels.append(0)
-labels = np.array(labels)
-assert len(labels) == 449919
-# pkl.dump(labels, open('SWaT_test_label.pkl', 'wb'))
-print('SWaT_test_label saved')
+# preprocess for SWAT
+train_path = "../../datasets/SWAT/SWaT_Dataset_Normal_v1.csv"
+test_path = "../../datasets/SWAT/SWaT_Dataset_Attack_v0.csv"
+with open(train_path, 'r')as file:
+    csv_reader = csv.reader(file, delimiter=',')
+    res_train = [row[1:-1] for row in csv_reader][2:]
+    row_train = len(res_train)
+    traindata = np.array(res_train, dtype=np.float32)
 
-df = df.drop(columns=[' Timestamp', 'Normal/Attack'])
-test = df.to_numpy()
-assert test.shape == (449919, 51)
-# pkl.dump(test, open('SWaT_test.pkl', 'wb'))
-print('SWaT_test saved')
+epsilo = 0.001
+data_min = np.min(traindata, axis=0)
+data_max = np.max(traindata, axis=0)+epsilo
+for i in range(len(data_max)):
+    if data_max[i] - data_min[i] < 10 * epsilo:
+        data_min[i] = data_max[i]
+        data_max[i] = 1 + data_max[i]
 
-df = pd.read_csv('SWaT_Dataset_Normal_v0.csv')
-df = df.drop(columns=['Unnamed: 0','Unnamed: 52'])
-train = df[1:].to_numpy()
-assert train.shape == (496800, 51)
-# pkl.dump(train, open('SWaT_train.pkl', 'wb'))
+train = (traindata - data_min)/(data_max - data_min)
+print("train shape ", train.shape)
+pkl.dump(train, open('../data/processed/SWaT_train.pkl', 'wb'))
 print('SWaT_train saved')
 
-# preprocess for WADI. WADI.A1
-a = str(open('WADI_14days.csv', 'rb').read(), encoding='utf8').split('\n')[5: -1]
-a = '\n'.join(a)
-with open('train1.csv', 'wb') as f:
-    f.write(a.encode('utf8'))
-a = pd.read_csv('train1.csv', header=None)
+with open(test_path, 'r')as file:
+    csv_reader = csv.reader(file, delimiter=',')
+    res_test = [row[1:-1] for row in csv_reader][1:]
+    row_test = len(res_test)
+    testdata = np.array(res_test, dtype=np.float32)
+    
+rawdata = (testdata - data_min)/(data_max - data_min)
+print("test shape ", rawdata.shape)
+test = np.clip(rawdata, a_min=-1.0, a_max=3.0)
+pkl.dump(test, open('../data/processed/SWaT_test.pkl', 'wb'))
+print('SWaT_test saved')
+
+with open(test_path, 'r')as file:
+    csv_reader = csv.reader(file, delimiter=',')
+    res = [row[-1]for row in csv_reader][1:]
+    label_ = [0 if i == "Normal" else 1 for i in res]
+labels = np.array(label_)
+print("label shape ", labels.shape)
+pkl.dump(labels, open('../data/processed/SWaT_test_label.pkl', 'wb'))
+print('SWaT_test_label saved')
 
 
-a = a.to_numpy()[:, 3:]
-nan_cols = []
-for j in range(a.shape[1]):
-    for i in range(a.shape[0]):
-        if a[i][j] != a[i][j]:
-            nan_cols.append(j)
-            break
-# len(nan_cols) == 9
-train = np.delete(a, nan_cols, axis=1)
-assert train.shape == (1209601, 118)
-# pkl.dump(train, open('WADI_train.pkl', 'wb'))
-print('WADI_train saved')
 
-df = pd.read_csv('WADI_attackdata.csv')
-test = df.to_numpy()[:, 3:]
-test = np.delete(test, nan_cols, axis=1)
-assert test.shape == (172801, 118)
-# pkl.dump(test, open('WADI_test.pkl', 'wb'))
-print('WADI_test saved')
-
-print('WADI_test_label saved')
-
-# WADI labels.pkl are created manually via the description file of the dataset

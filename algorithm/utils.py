@@ -60,7 +60,7 @@ def get_data_dim(dataset):
 
 
 def get_data(dataset, max_train_size=None, max_test_size=None, print_log=True, do_preprocess=True, train_start=0,
-             test_start=0, valid_portion=0.3, prefix="./data/processed"):
+             test_start=0, valid_portion=0.3, prefix="../data/processed"):
     """
     get data from pkl files
     return shape: (([train_size, x_dim], [train_size] or None), ([test_size, x_dim], [test_size]))

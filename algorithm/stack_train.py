@@ -9,12 +9,12 @@ import tfsnippet as spt
 from tfsnippet.scaffold import TrainLoop
 from tfsnippet.trainer import Trainer, Evaluator
 import mltk
-from algorithm.utils import get_data_dim, get_data, get_sliding_window_data_flow, time_generator, GraphNodes
+from utils import get_data_dim, get_data, get_sliding_window_data_flow, time_generator, GraphNodes
 import random
 
-from algorithm.InterFusion import ModelConfig, MTSAD
-from algorithm.InterFusion_swat import MTSAD_SWAT
-from algorithm.stack_predict import PredictConfig
+from InterFusion import ModelConfig, MTSAD
+from InterFusion_swat import MTSAD_SWAT
+from stack_predict import PredictConfig
 
 
 class TrainConfig(mltk.Config):

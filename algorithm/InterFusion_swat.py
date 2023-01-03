@@ -14,9 +14,9 @@ from tfsnippet.distributions import FlowDistribution, Normal
 from tfsnippet.layers import l2_regularizer
 
 import mltk
-from algorithm.recurrent_distribution import RecurrentDistribution
-from algorithm.real_nvp import dense_real_nvp
-from algorithm.conv1d_ import conv1d, deconv1d
+from recurrent_distribution import RecurrentDistribution
+from real_nvp import dense_real_nvp
+from conv1d_ import conv1d, deconv1d
 
 
 class RNNCellType(str, Enum):
